@@ -7,3 +7,4 @@ edition = "2024"
 bip39 = { version = "2.2.2", features = ["rand"] }
 clap = { version = "4.6.1", features = ["derive"] }
 solana-keypair = "3.1.2"
+anstyle = "1.0.14"

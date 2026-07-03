@@ -1,6 +1,6 @@
 use clap::Parser;
 use crate::commands::Commands;
-use crate::commands::{new, pubkey};
+use crate::commands::{new, pubkey, recover};
 use crate::constant::DEFAULT_PATH;
 use std::path::PathBuf;
 
@@ -26,6 +26,14 @@ fn main() {
                 default_path
             });
             pubkey::run(keypair)
+        },
+        Commands::Recover { outfile } => {
+            let outfile = outfile.unwrap_or_else(|| {
+                let default_path = PathBuf::from(DEFAULT_PATH);
+                println!("using default output path: {:?}", default_path);
+                default_path
+            });
+            recover::run(outfile)
         },
     };
 
