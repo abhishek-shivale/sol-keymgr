@@ -1,5 +1,6 @@
 pub mod new;
 pub mod pubkey;
+pub mod recover;
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -23,6 +24,11 @@ pub enum Commands {
     Pubkey {
         #[arg(help = "Path to the keypair file")]
         keypair: Option<PathBuf>,
+    },
+    #[clap(about = "Recover keypair from seed phrase and optional BIP39 passphrase")]
+    Recover {
+        #[arg(help = "Output path for the recovered keypair file")]
+        outfile: Option<PathBuf>,
     }
 }
 
