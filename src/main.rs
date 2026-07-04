@@ -1,5 +1,5 @@
 use crate::commands::Commands;
-use crate::commands::{activate, current, delete, env_cmd, export, import, import_key, init, kill, list, new, pubkey, recover, use_cmd};
+use crate::commands::{activate, current, delete, env_cmd, export, import, init, kill, list, new, pubkey, recover, use_cmd};
 use clap::Parser;
 
 pub mod commands;
@@ -14,8 +14,7 @@ fn main() {
     let result: Result<(), Box<dyn std::error::Error>> = match cli_parser.command {
         Commands::Init { undo } => init::run(undo).map_err(Into::into),
         Commands::New { addr, no_toml } => new::run(addr, no_toml).map_err(Into::into),
-        Commands::Import { file, addr } => import::run(file, addr).map_err(Into::into),
-        Commands::ImportKey { addr } => import_key::run(addr).map_err(Into::into),
+        Commands::Import { file, key, addr } => import::run(file, key, addr).map_err(Into::into),
         Commands::Recover { addr } => recover::run(addr).map_err(Into::into),
         Commands::Export { addr, outfile } => export::run(addr, outfile).map_err(Into::into),
         Commands::Delete { addr } => delete::run(addr).map_err(Into::into),

@@ -4,7 +4,6 @@ pub mod delete;
 pub mod env_cmd;
 pub mod export;
 pub mod import;
-pub mod import_key;
 pub mod init;
 pub mod kill;
 pub mod list;
@@ -37,15 +36,13 @@ pub enum Commands {
         #[arg(long, help = "Don't offer to bind this project to the new key")]
         no_toml: bool,
     },
-    #[clap(about = "Import a solana-keygen JSON keypair file into the vault")]
+    #[clap(about = "Import a keypair into the vault, from a solana-keygen JSON file or a pasted base58 private key")]
+    #[clap(group(clap::ArgGroup::new("source").required(true).args(["file", "key"])))]
     Import {
         #[arg(help = "Path to the solana-keygen JSON keypair file")]
-        file: PathBuf,
-        #[arg(help = "env/name to store it as, e.g. dev/deployer")]
-        addr: Option<String>,
-    },
-    #[clap(about = "Import a base58 private key (e.g. exported from Phantom) into the vault")]
-    ImportKey {
+        file: Option<PathBuf>,
+        #[arg(long, help = "Prompt for a base58 private key instead (e.g. exported from Phantom)")]
+        key: bool,
         #[arg(help = "env/name to store it as, e.g. dev/deployer")]
         addr: Option<String>,
     },
