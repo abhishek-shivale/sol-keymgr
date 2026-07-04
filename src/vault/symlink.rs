@@ -2,7 +2,6 @@ use crate::error::AppError;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
-/// Resolves `link`'s target to an absolute path, if `link` is a symlink at all.
 pub fn current_target(link: &Path) -> Result<Option<PathBuf>, AppError> {
     match std::fs::symlink_metadata(link) {
         Ok(m) if m.file_type().is_symlink() => {
@@ -18,8 +17,6 @@ pub fn current_target(link: &Path) -> Result<Option<PathBuf>, AppError> {
     }
 }
 
-/// Repoint `link` at `target`: create a temp symlink next to it, then `rename()`
-/// over `link` — atomic, never delete-then-create (design §4a).
 pub fn atomic_repoint(link: &Path, target: &Path) -> Result<(), AppError> {
     if let Some(parent) = link.parent() {
         std::fs::create_dir_all(parent)?;

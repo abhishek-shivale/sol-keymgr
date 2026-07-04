@@ -3,7 +3,6 @@ use crate::error::AppError;
 use crate::vault::env::KeyAddr;
 use std::path::{Path, PathBuf};
 
-/// Walk up from `start` toward `/`; nearest `.keymgr.toml` wins (design §6).
 pub fn find_binding(start: &Path) -> Result<Option<KeyAddr>, AppError> {
     let mut cur = Some(start);
     while let Some(dir) = cur {
@@ -21,9 +20,6 @@ pub fn find_binding(start: &Path) -> Result<Option<KeyAddr>, AppError> {
     Ok(None)
 }
 
-/// Create/update `.keymgr.toml` in `dir`, touching only the `key` field (other
-/// user-added fields are preserved). First creation inside a git repo appends
-/// the file to `.gitignore` (idempotent).
 pub fn bind(dir: &Path, addr: &KeyAddr) -> Result<(), AppError> {
     let toml_path = dir.join(PROJECT_TOML_NAME);
     let existed = toml_path.exists();

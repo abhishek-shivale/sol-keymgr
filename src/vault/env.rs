@@ -40,7 +40,6 @@ impl FromStr for Env {
     }
 }
 
-/// A validated `env/name` key address, e.g. `dev/deployer`.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct KeyAddr {
     pub env: Env,
@@ -57,7 +56,6 @@ impl KeyAddr {
         Ok(KeyAddr { env, name: name.to_string() })
     }
 
-    /// Filename stem used on disk: `{env}_{name}`.
     pub fn stem(&self) -> String {
         format!("{}_{}", self.env, self.name)
     }
@@ -69,7 +67,6 @@ impl fmt::Display for KeyAddr {
     }
 }
 
-/// Names become filenames: `a-z`, `0-9`, `-`, 1-32 chars.
 pub fn validate_name(name: &str) -> Result<(), AppError> {
     let ok = !name.is_empty()
         && name.len() <= crate::constant::NAME_MAX_LEN

@@ -17,7 +17,6 @@ pub fn run(addr: String) -> Result<(), AppError> {
 
     let active_path = paths.active_entry(&addr);
     if active_path.exists() {
-        // idempotent: refresh mtime by rewriting the same bytes, no passphrase needed
         let existing = std::fs::read(&active_path)?;
         write_0600(&active_path, &existing)?;
         println!("{addr} already active (refreshed)");

@@ -49,7 +49,6 @@ impl Paths {
         self.backup_dir().join(SOLANA_ID_BACKUP_NAME)
     }
 
-    /// Path the solana/anchor CLIs read by default: `~/.config/solana/id.json`.
     pub fn solana_id(&self) -> Result<PathBuf, AppError> {
         let home = BaseDirs::new().ok_or(AppError::NoHomeDir)?.home_dir().to_path_buf();
         Ok(home.join(".config").join("solana").join("id.json"))
@@ -63,7 +62,6 @@ impl Paths {
         self.active_dir().join(format!("{}.json", addr.stem()))
     }
 
-    /// Create vault/, active/, backup/ if missing. Idempotent.
     pub fn ensure_dirs(&self) -> Result<(), AppError> {
         std::fs::create_dir_all(self.vault_dir())?;
         std::fs::create_dir_all(self.active_dir())?;

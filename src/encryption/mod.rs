@@ -7,8 +7,6 @@ use serde::{Deserialize, Serialize};
 use zeroize::Zeroizing;
 use crate::{constant::*, error::EncError};
 
-
-
 #[derive(Serialize, Deserialize)]
 struct KdfParams {
     algo: String,

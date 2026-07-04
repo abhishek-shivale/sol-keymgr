@@ -6,7 +6,6 @@ use crate::vault::paths::Paths;
 use dialoguer::{Input, Select};
 use std::str::FromStr;
 
-/// Interactively ask for an env/name pair (used by `new`/`import`/`recover` with no arg).
 pub fn ask_new_addr() -> Result<KeyAddr, AppError> {
     let env_idx = Select::new()
         .with_prompt("env")
@@ -25,7 +24,6 @@ pub fn ask_new_addr() -> Result<KeyAddr, AppError> {
     Ok(KeyAddr { env, name })
 }
 
-/// Interactive picker over every key in the vault (used by `use`/`activate`/`delete`/`export` w/ no arg).
 pub fn pick_from_index(index: &Index, prompt: &str) -> Result<KeyAddr, AppError> {
     if index.keys.is_empty() {
         return Err(AppError::Other("vault is empty".into()));
@@ -41,7 +39,6 @@ pub fn pick_from_index(index: &Index, prompt: &str) -> Result<KeyAddr, AppError>
     Ok(KeyAddr { env: Env::from_str(&meta.env)?, name: meta.name.clone() })
 }
 
-/// Interactive picker restricted to keys currently in the active set (used by `kill` w/ no arg).
 pub fn pick_active(paths: &Paths, index: &Index, prompt: &str) -> Result<KeyAddr, AppError> {
     let actives: Vec<&KeyMeta> = index
         .keys

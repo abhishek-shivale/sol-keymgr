@@ -26,12 +26,6 @@ fn check(passphrase: &[u8], paths: &Paths) -> Result<(), AppError> {
     }
 }
 
-/// Every passphrase-taking command calls this first (design §5, §8):
-/// - verifier present -> just check it.
-/// - verifier missing, vault empty -> first run, create it.
-/// - verifier missing, vault non-empty -> heal: test-decrypt every entry; all-succeed
-///   recreates the verifier, any failure names exactly which keys are sealed under a
-///   different passphrase.
 pub fn ensure_unlocked(passphrase: &[u8], paths: &Paths) -> Result<(), AppError> {
     if exists(paths) {
         return check(passphrase, paths);
@@ -66,9 +60,6 @@ fn vault_is_empty(paths: &Paths) -> Result<bool, AppError> {
     Ok(vault_enc_files(paths)?.is_empty())
 }
 
-/// Prompt for the master passphrase and unlock the vault (design §5 lifecycle):
-/// - verifier exists, or vault has entries -> prompt once, verify/heal.
-/// - truly first run (no verifier, empty vault) -> prompt twice to confirm, create verifier.
 pub fn unlock(paths: &Paths) -> Result<Zeroizing<String>, AppError> {
     if exists(paths) || !vault_is_empty(paths)? {
         let pw = Zeroizing::new(rpassword::prompt_password("Master passphrase: ")?);

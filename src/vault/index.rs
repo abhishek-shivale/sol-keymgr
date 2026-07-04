@@ -65,6 +65,5 @@ fn now_rfc3339() -> String {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
-    // ponytail: epoch seconds, not a formatted date. Good enough for "created_at" ordering/display.
     secs.to_string()
 }

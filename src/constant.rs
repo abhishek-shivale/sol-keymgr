@@ -15,7 +15,6 @@ pub const ERR_BAD_NONCE: &str = "bad nonce";
 pub const ERR_BAD_CIPHERTEXT: &str = "bad ciphertext";
 pub const ERR_BAD_NONCE_LEN: &str = "bad nonce length";
 
-// --- vault layout (~/.sol-keymgr) ---
 pub const APP_DIR_NAME: &str = ".sol-keymgr";
 pub const VAULT_DIR_NAME: &str = "vault";
 pub const ACTIVE_DIR_NAME: &str = "active";
@@ -25,12 +24,9 @@ pub const VERIFIER_FILE_NAME: &str = "verifier.enc";
 pub const CONFIG_FILE_NAME: &str = "config.toml";
 pub const SOLANA_ID_BACKUP_NAME: &str = "id.json.bak";
 
-// --- verifier canary ---
 pub const VERIFIER_PLAINTEXT: &[u8] = b"sol-keymgr-v1";
 
-// --- key naming ---
 pub const ENVS: [&str; 3] = ["local", "dev", "prod"];
 pub const NAME_MAX_LEN: usize = 32;
 
-// --- project binding ---
 pub const PROJECT_TOML_NAME: &str = ".keymgr.toml";

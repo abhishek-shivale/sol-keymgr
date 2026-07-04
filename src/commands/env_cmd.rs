@@ -23,9 +23,6 @@ pub fn run(addr: String) -> Result<(), AppError> {
     Ok(())
 }
 
-/// Generates a per-key solana CLI config whose `keypair_path` points at the active
-/// key file, starting from the user's default config and touching only that one
-/// line — everything else (rpc url, address labels, ...) passes through untouched.
 fn per_project_solana_config(paths: &Paths, addr: &KeyAddr) -> Result<PathBuf, AppError> {
     let default_cfg_path = BaseDirs::new()
         .ok_or(AppError::NoHomeDir)?

@@ -22,7 +22,6 @@ pub struct KeyMgr {
     pub command: Commands
 }
 
-
 #[derive(Subcommand)]
 pub enum Commands {
     #[clap(about = "Set up the vault; convert ~/.config/solana/id.json into a keymgr-managed symlink")]
