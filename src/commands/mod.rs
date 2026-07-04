@@ -4,6 +4,7 @@ pub mod delete;
 pub mod env_cmd;
 pub mod export;
 pub mod import;
+pub mod import_key;
 pub mod init;
 pub mod kill;
 pub mod list;
@@ -40,6 +41,11 @@ pub enum Commands {
     Import {
         #[arg(help = "Path to the solana-keygen JSON keypair file")]
         file: PathBuf,
+        #[arg(help = "env/name to store it as, e.g. dev/deployer")]
+        addr: Option<String>,
+    },
+    #[clap(about = "Import a base58 private key (e.g. exported from Phantom) into the vault")]
+    ImportKey {
         #[arg(help = "env/name to store it as, e.g. dev/deployer")]
         addr: Option<String>,
     },

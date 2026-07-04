@@ -54,6 +54,9 @@ pub enum AppError {
     #[error("invalid keypair file: {0}")]
     InvalidKeypairFile(String),
 
+    #[error("invalid private key: {0}")]
+    InvalidPrivateKey(String),
+
     #[error("{0} exists and is not managed by keymgr")]
     ForeignSymlink(String),
 
