@@ -1,5 +1,3 @@
-pub const DEFAULT_PATH: &str = "~/.config/solana/id.json";
-
 pub const SALT_LEN: usize = 16;
 pub const NONCE_LEN: usize = 12;
 pub const KEY_LEN: usize = 32;

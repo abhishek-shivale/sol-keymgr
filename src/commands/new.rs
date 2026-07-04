@@ -1,38 +1,54 @@
+use crate::error::AppError;
+use crate::vault::binding;
+use crate::vault::env::KeyAddr;
+use crate::vault::index::Index;
+use crate::vault::paths::Paths;
+use crate::vault::store::{encode_keypair_json, store};
+use crate::vault::{prompt, verifier};
 use bip39::{Language, Mnemonic};
-use solana_keypair::{keypair_from_seed, write_keypair_file, Keypair, Signer};
-use std::error::Error;
-use std::path::PathBuf;
+use dialoguer::Confirm;
+use solana_keypair::{keypair_from_seed, Signer};
 
-pub fn run(outfile: PathBuf) -> Result<Keypair, Box<dyn Error>> {
+pub fn run(addr: Option<String>, no_toml: bool) -> Result<(), AppError> {
+    let paths = Paths::resolve()?;
+    paths.ensure_dirs()?;
+
+    let addr = match addr {
+        Some(s) => KeyAddr::parse(&s)?,
+        None => prompt::ask_new_addr()?,
+    };
+
     let mnemonic = Mnemonic::generate_in(Language::English, 12)?;
     let seed = mnemonic.to_seed("");
-    let keypair = keypair_from_seed(&seed)?;
+    let keypair = keypair_from_seed(&seed).map_err(|e| AppError::Other(e.to_string()))?;
+    let plaintext = encode_keypair_json(keypair.to_bytes())?;
 
-    write_keypair_file(&keypair, &outfile)?;
+    let pw = verifier::unlock(&paths)?;
+    let mut index = Index::load(&paths)?;
+    store(&paths, &mut index, &addr, &keypair.pubkey().to_string(), &plaintext, pw.as_bytes())?;
 
-    println!("Wrote new keypair to {}", outfile.display());
-    println!("pubkey: {}", keypair.pubkey());
-    println!(
-        "Save this seed phrase to recover your new keypair:\n{}",
-        mnemonic
-    );
+    println!("stored {} — pubkey: {}", addr, keypair.pubkey());
+    println!("recovery seed phrase (write this down, it is shown only once):\n{mnemonic}");
 
-    Ok(keypair)
+    if !no_toml {
+        maybe_bind(&addr)?;
+    }
+    Ok(())
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use solana_keypair::read_keypair_file;
-
-    #[test]
-    fn test_new_pubkey() {
-        let path = std::env::temp_dir().join("keymgr_test_new_keypair.json");
-
-        let keypair = run(path.clone()).unwrap();
-        let read_back = read_keypair_file(&path).unwrap();
-
-        assert_eq!(keypair.pubkey(), read_back.pubkey());
-        std::fs::remove_file(&path).unwrap();
+fn maybe_bind(addr: &KeyAddr) -> Result<(), AppError> {
+    let cwd = std::env::current_dir()?;
+    if binding::find_binding(&cwd)?.is_some() {
+        return Ok(());
     }
+    let bind = Confirm::new()
+        .with_prompt(format!("bind this project to {addr}?"))
+        .default(false)
+        .interact()
+        .map_err(|e| AppError::Other(e.to_string()))?;
+    if bind {
+        binding::bind(&cwd, addr)?;
+        println!("wrote .keymgr.toml");
+    }
+    Ok(())
 }

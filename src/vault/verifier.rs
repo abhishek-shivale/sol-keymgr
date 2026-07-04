@@ -2,6 +2,7 @@ use crate::constant::VERIFIER_PLAINTEXT;
 use crate::encryption::{decrypt, encrypt, EncFile};
 use crate::error::AppError;
 use crate::vault::paths::Paths;
+use zeroize::Zeroizing;
 
 pub fn exists(paths: &Paths) -> bool {
     paths.verifier_file().exists()
@@ -58,6 +59,29 @@ pub fn ensure_unlocked(passphrase: &[u8], paths: &Paths) -> Result<(), AppError>
             "verifier missing and passphrase does not match: {} (mixed-passphrase vault, cannot heal)",
             mismatched.join(", ")
         )))
+    }
+}
+
+fn vault_is_empty(paths: &Paths) -> Result<bool, AppError> {
+    Ok(vault_enc_files(paths)?.is_empty())
+}
+
+/// Prompt for the master passphrase and unlock the vault (design §5 lifecycle):
+/// - verifier exists, or vault has entries -> prompt once, verify/heal.
+/// - truly first run (no verifier, empty vault) -> prompt twice to confirm, create verifier.
+pub fn unlock(paths: &Paths) -> Result<Zeroizing<String>, AppError> {
+    if exists(paths) || !vault_is_empty(paths)? {
+        let pw = Zeroizing::new(rpassword::prompt_password("Master passphrase: ")?);
+        ensure_unlocked(pw.as_bytes(), paths)?;
+        Ok(pw)
+    } else {
+        let pw1 = Zeroizing::new(rpassword::prompt_password("Create master passphrase: ")?);
+        let pw2 = Zeroizing::new(rpassword::prompt_password("Confirm master passphrase: ")?);
+        if pw1.as_str() != pw2.as_str() {
+            return Err(AppError::Other("passphrases did not match".into()));
+        }
+        create(pw1.as_bytes(), paths)?;
+        Ok(pw1)
     }
 }
 

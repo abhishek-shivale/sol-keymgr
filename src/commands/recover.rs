@@ -1,33 +1,43 @@
+use crate::error::AppError;
+use crate::vault::env::KeyAddr;
+use crate::vault::index::Index;
+use crate::vault::paths::Paths;
+use crate::vault::prompt;
+use crate::vault::store::{encode_keypair_json, store};
+use crate::vault::verifier;
 use bip39::Mnemonic;
-use solana_keypair::{keypair_from_seed_phrase_and_passphrase, write_keypair_file, Keypair, Signer};
-use std::error::Error;
-use std::io::{self, Write};
-use std::path::PathBuf;
+use rpassword::prompt_password;
+use solana_keypair::{keypair_from_seed_phrase_and_passphrase, Signer};
 
-pub fn run(outfile: PathBuf) -> Result<Keypair, Box<dyn Error>> {
-    print!("Recovery seed phrase: ");
-    io::stdout().flush()?;
-    let mut phrase = String::new();
-    io::stdin().read_line(&mut phrase)?;
+pub fn run(addr: Option<String>) -> Result<(), AppError> {
+    let paths = Paths::resolve()?;
+    paths.ensure_dirs()?;
 
-    print!("Passphrase (optional, press enter to skip): ");
-    io::stdout().flush()?;
-    let mut passphrase = String::new();
-    io::stdin().read_line(&mut passphrase)?;
+    let addr = match addr {
+        Some(s) => KeyAddr::parse(&s)?,
+        None => prompt::ask_new_addr()?,
+    };
 
-    let keypair = recover_from_phrase(phrase.trim(), passphrase.trim())?;
+    let phrase = prompt_password("Recovery seed phrase: ")?;
+    let bip39_passphrase = prompt_password("BIP39 passphrase (optional, enter to skip): ")?;
+    let keypair = recover_from_phrase(phrase.trim(), bip39_passphrase.trim())?;
+    let plaintext = encode_keypair_json(keypair.to_bytes())?;
 
-    write_keypair_file(&keypair, &outfile)?;
+    let pw = verifier::unlock(&paths)?;
+    let mut index = Index::load(&paths)?;
+    store(&paths, &mut index, &addr, &keypair.pubkey().to_string(), &plaintext, pw.as_bytes())?;
 
-    println!("Wrote recovered keypair to {}", outfile.display());
-    println!("pubkey: {}", keypair.pubkey());
-
-    Ok(keypair)
+    println!("stored {} — pubkey: {}", addr, keypair.pubkey());
+    Ok(())
 }
 
-fn recover_from_phrase(phrase: &str, passphrase: &str) -> Result<Keypair, Box<dyn Error>> {
+fn recover_from_phrase(
+    phrase: &str,
+    bip39_passphrase: &str,
+) -> Result<solana_keypair::Keypair, AppError> {
     Mnemonic::parse(phrase)?;
-    keypair_from_seed_phrase_and_passphrase(phrase, passphrase)
+    keypair_from_seed_phrase_and_passphrase(phrase, bip39_passphrase)
+        .map_err(|e| AppError::Other(e.to_string()))
 }
 
 #[cfg(test)]

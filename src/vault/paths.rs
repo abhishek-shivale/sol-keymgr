@@ -49,6 +49,12 @@ impl Paths {
         self.backup_dir().join(SOLANA_ID_BACKUP_NAME)
     }
 
+    /// Path the solana/anchor CLIs read by default: `~/.config/solana/id.json`.
+    pub fn solana_id(&self) -> Result<PathBuf, AppError> {
+        let home = BaseDirs::new().ok_or(AppError::NoHomeDir)?.home_dir().to_path_buf();
+        Ok(home.join(".config").join("solana").join("id.json"))
+    }
+
     pub fn vault_entry(&self, addr: &KeyAddr) -> PathBuf {
         self.vault_dir().join(format!("{}.enc", addr.stem()))
     }
