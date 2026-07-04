@@ -8,6 +8,7 @@ pub mod commands;
 mod constant;
 pub mod encryption;
 pub mod error;
+pub mod vault;
 
 fn main() {
     let cli_parser = commands::KeyMgr::parse();
