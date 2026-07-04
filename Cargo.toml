@@ -6,5 +6,18 @@ edition = "2024"
 [dependencies]
 bip39 = { version = "2.2.2", features = ["rand"] }
 clap = { version = "4.6.1", features = ["derive"] }
-solana-keypair = "3.1.2"
+solana-keypair = { version = "3.1.2", features = ["seed-derivable"] }
 anstyle = "1.0.14"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.150", features = ["std"] }
+toml = { version = "1.1.2", features = ["serde"] }
+argon2 = { version = "0.6.0-rc.8", features = ["default", "zeroize"] }
+chacha20poly1305 = { version = "0.11.0", features = ["default", "zeroize"] }
+rand = { version = "0.10.2", features = ["default"] }
+zeroize = { version = "1.9.0", features = ["serde", "zeroize_derive"] }
+base64ct = { version = "1.8.3", features = ["alloc"] }
+bs58 = "0.5.1"
+rpassword = "7.5.4"
+thiserror = "2.0.18"
+directories = "6.0.0"
+dialoguer = "0.12.0"
